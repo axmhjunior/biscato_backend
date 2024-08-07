@@ -23,6 +23,8 @@ model User {
   updateAt DateTime @updatedAt @map("update_at")
   Administratrator Administratrator[]
   Freelancer        Freelancer[]
+  Service           Service[]
+
 
   @@map("users")
 }
@@ -44,8 +46,31 @@ model Freelancer {
   serviceCategory String @map("service_category")
   description String
   rating  Int?
+  Service          Service[]
 
   user User @relation(fields: [userId], references: [id])
   @@map("freelancer")
 }
 
+
+model ServiceCategory {
+  id String @id @default(uuid())
+  name String @unique
+
+  Service      Service[]
+}
+
+model Service {
+  id String @id @default(uuid())
+  clientId String @map("client_id")
+  freelancerId String @map("freelancer_id") 
+  categoryId String @map("category_id")
+  description String
+  locationCenter String
+  status Boolean @default(true)
+
+  user User @relation(fields: [clientId], references: [id])
+  freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
+  category ServiceCategory @relation(fields: [categoryId], references: [id])
+
+}

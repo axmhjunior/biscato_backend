@@ -53,7 +53,7 @@ export class UserController{
 
         const otp = otpGenerator()
 
-        messageService(`biscato ${name} ${otp}`, phone)
+        messageService(`This your otp code: \n${otp}`, phone)
         console.log(otp)
         return response.status(201).send({...saveuser, password:undefined})
     }
