@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import  jwt  from 'jsonwebtoken'
+import  jwt  from 'jsonwebtoken';
 import { z } from "zod";
 import { TokenConfig } from "../config/token"; 
 import { ExecException } from 'child_process';

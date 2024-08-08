@@ -9,6 +9,6 @@ const userController = new UserController();
 
 
 route.post('/', (request, response)=>{userController.create(request, response)});
-route.put('/:id', AuthRoute, (request, response)=>{userController.update(request, response)});
 route.post('/p', AuthRoute, (request, response)=>{userController.cria(request, response)})
+route.put('/:id', AuthRoute, (request, response)=>{userController.update(request, response)});
 module.exports = route;

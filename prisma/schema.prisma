@@ -25,6 +25,7 @@ model User {
   Freelancer        Freelancer[]
   Service           Service[]
 UserLocation UserLocation[]
+Feedback  Feedback[]
 
   @@map("users")
 }
@@ -59,7 +60,7 @@ model FreelancerLocation {
   latitude Float
 
   freelancer Freelancer @relation(fields: [userId], references: [userId])
-
+  
   @@map("freelancer_location")
 }
 
@@ -80,6 +81,8 @@ model ServiceCategory {
   name String @unique
 
   Service      Service[]
+
+  @@map("service_category")
 }
 
 model Service {
@@ -94,4 +97,18 @@ model Service {
   freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
   category ServiceCategory @relation(fields: [categoryId], references: [id])
 
+@@map("service")
+}
+
+
+model Feedback {
+  id String @id @default(uuid())
+  userId String 
+  text String
+    createAt DateTime @default(now()) @map("create_at")
+  updateAt DateTime @updatedAt @map("update_at")
+
+
+  user User @relation(fields: [userId], references: [id])
+  @@map("feedback")
 }

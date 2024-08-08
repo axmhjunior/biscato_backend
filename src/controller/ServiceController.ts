@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { decodeToken } from "../utils/Jwt";
 import { db } from "../database";
-import { error } from "console";
+
 
 export class ServiceController {
   async requestService(request: Request, response: Response) {
@@ -19,8 +19,8 @@ export class ServiceController {
     const serviceSchema = z.object({
       description: z.string(),
       categoryService: z.string(),
-      latitude: z.string(),
-      longitude: z.string()
+      latitude: z.number(),
+      longitude: z.number(),
     });
 
     const { description, categoryService, longitude, latitude } =
@@ -37,29 +37,22 @@ export class ServiceController {
       return response.status(404).send({ error: "User not found" });
     }
 
-    const registerJob = await db.service.create({
-      data: {
-        description,
-        clientId: userId,
-        freelancerId:"4e52bc7c-0023-4c5d-9d49-223ee115db14",
-        categoryId: categoryService
-      },
-    });
 
-    const freelancers = await db.$queryRaw`
-      SELECT userId, name, latitude, longitude,
-      (6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude)) - radians(${longitude}) + sin(radians(${latitude})) AS distance
 
-      FROM freelancerLocation HAVING distance <= 2
+    const freelancer = await db.$queryRaw`
+      SELECT latitude, longitude,
+        (6371 * acos(
+          cos(radians(${latitude})) * cos(radians(latitude)) *
+          cos(radians(longitude) - radians(${longitude})) +
+          sin(radians(${latitude})) * sin(radians(latitude))
+        )) AS distance
+      FROM freelancer_location
+        HAVING distance <= 2 
       ORDER BY distance
-    
-    ))
-    `
-
-    
+    `;
 
 
 
-    return response.status(201).send(freelancers);
+    response.status(201).json(freelancer);
   }
 }
