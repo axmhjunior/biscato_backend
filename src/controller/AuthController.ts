@@ -2,6 +2,7 @@ import { z } from "zod";
 import { db } from "../database";
 import { Request, Response } from "express";
 import { bcryptComparePassword } from "../utils/Bcrypt";
+import { generateToken } from "../utils/Jwt";
 
 export class AuthController{
     async login(request: Request, response: Response){
@@ -29,8 +30,8 @@ export class AuthController{
         if(!(await bcryptComparePassword(password, user.password))){
                 return response.status(404).send("Identifier ou Password invalid.")
             }
-            
-        return response.status(200).send(user)
+        const token = generateToken(user.id)
+        return response.status(200).send({token: token})
     }
 
 

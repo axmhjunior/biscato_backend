@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "../database";
 import { encryptPassword } from "../utils/Bcrypt";
 import { messageService } from "../utils/twilio";
+import { decodeToken } from "../utils/Jwt";
 
 
 
@@ -53,7 +54,7 @@ export class UserController{
 
         const otp = otpGenerator()
 
-        messageService(`biscato ${name} ${otp}`, phone)
+        // messageService(`This your otp code: \n${otp}`, phone)
         console.log(otp)
         return response.status(201).send({...saveuser, password:undefined})
     }
@@ -149,5 +150,28 @@ export class UserController{
         });
 
         return response.status(200).send({})
-    }
+    }async cria(request: Request, response: Response){
+        const [, token] = z
+        .string()
+        .parse(request.headers.authorization)
+        .split(" ");
+        const userId = decodeToken(token);
+        const userSchema = z.object({
+           latitude: z.number(),
+           longitude: z.number()
+        });
+        const { latitude, longitude } = userSchema.parse(request.body);
+
+
+        const save = await db.freelancerLocation.create({
+            data: {
+                userId,latitude, longitude
+            }
+        })
+
+
+        response.send(save);
 }
+}
+
+
