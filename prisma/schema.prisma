@@ -26,6 +26,7 @@ model User {
   Service           Service[]
 UserLocation UserLocation[]
 Feedback  Feedback[]
+ServiceNotification ServiceNotification[]
 
   @@map("users")
 }
@@ -33,6 +34,7 @@ Feedback  Feedback[]
 model Administratrator {
   id String @id @default(uuid())
   email String @unique
+  role String @default("ADM")
   userId String @unique @map("user_id")
 
   user User @relation(fields: [userId], references: [id])
@@ -46,9 +48,10 @@ model Freelancer {
   documentId String @unique @map("document_id")
   serviceCategory String @map("service_category")
   description String
-  rating  Int?
+ role String @default("FREELANCER")
   Service          Service[]
   FreelancerLocation  FreelancerLocation[]
+  ServiceNotification ServiceNotification[]
   user User @relation(fields: [userId], references: [id])
   @@map("freelancer")
 }
@@ -59,6 +62,7 @@ model FreelancerLocation {
   longitude Float 
   latitude Float
 
+  
   freelancer Freelancer @relation(fields: [userId], references: [userId])
   
   @@map("freelancer_location")
@@ -100,6 +104,22 @@ model Service {
 @@map("service")
 }
 
+
+model ServiceNotification {
+  id String  @id @default(uuid())
+  freelancerId String
+  clientId String
+  categoryId String @map("category_id")
+  description String
+  status Boolean @default(true)
+  createAt DateTime @default(now()) @map("create_at")
+  updateAt DateTime @updatedAt @map("update_at")
+
+  user User @relation(fields: [clientId], references: [id])
+  freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
+
+@@map("service_notification")
+}
 
 model Feedback {
   id String @id @default(uuid())

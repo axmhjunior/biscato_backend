@@ -60,19 +60,24 @@ export class FeedbackController {
 
       const feedbackId = request.params.id
 
-      const userId = db.feedback.findUnique({
+      const userId = decodeToken(token);
+      const feedback = await db.feedback.findFirst({
         where: {
-           userId:feedbackId
+           userId,
+           id: feedbackId
         }
     });
 
-    if(!userId){
+    if(!feedback){
         return response.status(404).send('User not found');
     }
     
-    await db.user.delete({
+
+    
+    await db.feedback.delete({
         where:{
-           userId:feedbackId
+          id: feedbackId
+
         }
     });
 

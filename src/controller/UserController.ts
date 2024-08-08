@@ -153,33 +153,33 @@ export class UserController{
     }
     
     
-    async cria(request: Request, response: Response) {
+    // async cria(request: Request, response: Response) {
         
        
-            const [, token] = z.string().parse(request.headers.authorization).split(" ");
-            const userId = decodeToken(token); 
+    //         const [, token] = z.string().parse(request.headers.authorization).split(" ");
+    //         const userId = decodeToken(token); 
 
 
-            const userSchema = z.object({
-                latitude: z.number(),
-                longitude: z.number(),
-            });
+    //         const userSchema = z.object({
+    //             latitude: z.number(),
+    //             longitude: z.number(),
+    //         });
 
 
-            const { latitude, longitude } = userSchema.parse(request.body);
+    //         const { latitude, longitude } = userSchema.parse(request.body);
 
 
-            const save = await db.freelancerLocation.create({
-                data: {
-                    userId,
-                    latitude,
-                    longitude,
-                },
-            });
+    //         const save = await db.freelancerLocation.create({
+    //             data: {
+    //                 userId,
+    //                 latitude,
+    //                 longitude,
+    //             },
+    //         });
 
-            response.send(save);
+    //         response.send(save);
 
-    }
+    // }
 }
 
 
