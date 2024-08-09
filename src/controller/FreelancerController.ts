@@ -71,10 +71,10 @@ export class FreelancerController {
 
     const otp = otpGenerator();
 
-    messageService(`O seu codigo de confirmacão é \n${otp}`, phone)
+    // messageService(`O seu codigo de confirmacão é \n${otp}`, phone)
     const token = generateToken(saveUser.id)
     console.log(otp);
-    return response.status(201).send(saveFreelancer);
+    return response.status(201).send({saveFreelancer, token:token});
   }
 
   async update(request: Request, response: Response) {
@@ -188,13 +188,14 @@ export class FreelancerController {
         .status(401)
         .send({ error: "Access denied. No token provided." });
     }
+    
     const freelancerSchema = z.object({
       latitude: z.number(),
       longitude: z.number(),
     });
 
     const userId = decodeToken(token);
-
+console.log(userId)
     const user = await db.freelancer.findUnique({
       where: {
         userId: userId
@@ -209,9 +210,9 @@ export class FreelancerController {
 
     const getLocation = await db.freelancerLocation.create({
         data: {
-            userId: "69e6428b-b5b7-4582-a615-66a54bd22940",
-            latitude: 40.7812,
-            longitude: 73.9665
+            userId,
+            latitude,
+            longitude
             
         }
     });

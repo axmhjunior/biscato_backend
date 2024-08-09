@@ -54,7 +54,7 @@ export class UserController{
 
         const otp = otpGenerator()
 
-        messageService(`This your otp code: \n${otp}`, phone)
+        // messageService(`This your otp code: \n${otp}`, phone)
         console.log(otp)
         const token = generateToken(saveuser.id)
         return response.status(201).send({...saveuser, password:undefined, token:token})

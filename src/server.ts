@@ -12,6 +12,7 @@ app.use(express.json());
 
   app.use(cors());
 
+app.use("/category", require("./routes/Category"));
 app.use("/user", require("./routes/User"));
 app.use("/feedback", require("./routes/Feedback"));
 app.use("/adm", require("./routes/Adm"));

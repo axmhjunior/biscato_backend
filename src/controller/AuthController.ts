@@ -6,6 +6,7 @@ import { generateToken } from "../utils/Jwt";
 
 export class AuthController{
     async login(request: Request, response: Response){
+        console.log("dhgceicyewhiewceh")
         const userSchema = z.object({
             identifier: z.string(),
             password: z.string()
@@ -31,7 +32,17 @@ export class AuthController{
                 return response.status(404).send("Identifier ou Password invalid.")
             }
         const token = generateToken(user.id)
-        return response.status(200).send({token: token})
+
+        const findUser =await db.freelancer.findUnique({
+            where: {
+                userId:user.id
+            }
+        });
+
+        if(findUser){
+            return response.status(200).send({token: token,role:findUser.role }) 
+        }
+        return response.status(200).send({token: token, role:user.role })
     }
 
 
