@@ -46,8 +46,8 @@ export class ServiceController {
           cos(radians(longitude) - radians(${longitude})) +
           sin(radians(${latitude})) * sin(radians(latitude))
         )) AS distance
-      FROM freelancer_location
-        HAVING distance <= 1000
+      FROM freelancer_location 
+        HAVING distance <= 2
       ORDER BY distance
     `;
 
@@ -61,6 +61,10 @@ console.log(freelancer.map((e) => e.userId), userId)
         categoryId: categoryService,
       })),
     });
+
+    if(sendNotification.count === 0 ){
+      return response.status(404).send("There are no freelancers in the area")
+    }
     return response.status(201).json(sendNotification);
 
     } catch (error) {
@@ -73,18 +77,10 @@ console.log(freelancer.map((e) => e.userId), userId)
   }
 
 
-
-
   async checkJob(request: Request, response: Response) {
 
     const jobId = request.params.id;
-    const statusSchema = z.object({
-      status: z.boolean(),
 
-    });
-
-    const { status } =
-      statusSchema.parse(request.body);
     const [, token] = z
       .string()
       .parse(request.headers.authorization)
@@ -107,7 +103,16 @@ console.log(freelancer.map((e) => e.userId), userId)
       return response.status(404).send({ error: "User not found" });
     }
 
-    const statusJob = db.serviceNotification.update({
+    const onService = await db.service.findFirst({
+      where: {
+        freelancerId
+      }
+    });
+
+    if(onService){
+      return response.status(409).send("Freelancer on service")
+    }
+    const statusJob = await db.serviceNotification.update({
       where: {
         id: jobId
       },
@@ -117,13 +122,97 @@ console.log(freelancer.map((e) => e.userId), userId)
       }
     });
 
+    const saveService = await db.service.create({
+      data: {
+        description: statusJob.description,
+        categoryId: statusJob.categoryId,
+        freelancerId: statusJob.freelancerId,
+        clientId: statusJob.clientId
+      }
+    });
     await db.serviceNotification.delete({
       where: {
         id: jobId
       }
     });
 
-    return response.status(200).send(statusJob)
+    return response.status(200).send(saveService)
 
   }
+
+  async doneJob(request: Request, response: Response) {
+    const serviceId = request.params.id;
+
+    const [, token] = z
+      .string()
+      .parse(request.headers.authorization)
+      .split(" ");
+    if (!token) {
+      return response
+        .status(401)
+        .send({ error: "Access denied. No token provided." });
+    }
+
+    const freelancerId = decodeToken(token);
+
+    const user = await db.user.findUnique({
+      where: {
+        id: freelancerId,
+      },
+    });
+
+    if (!user) {
+      return response.status(404).send({ error: "User not found" });
+    }
+    
+    const service = await db.service.findUnique({
+      where: {
+        id: serviceId,
+      },
+    });
+
+    if (!service) {
+      return response.status(404).send({ error: "Service not found" });
+    }
+
+  const updateStatus = await db.service.update({
+    where: {
+      id:service.id
+    },
+    data: {
+      status: false
+    }
+  });
+
+  const category = await db.serviceCategory.findUnique({
+    where: {
+      id: updateStatus.categoryId
+    },
+    select: {
+      name: true
+    }
+  });
+
+  if(!category){
+    return response.status(404).send({ error: "Category not found" });
+  }
+  const saveJistoric  = await db.historic.create({
+    data: { 
+    freelancerId: updateStatus.freelancerId,
+    clientId: updateStatus.clientId,
+    description: updateStatus.description,
+    category: category.name
+}
+  });
+
+  await db.service.delete({
+    where: {
+      id: serviceId
+    }
+  });
+
+  return response.status(200).send(saveJistoric)
+  }
+
+  
 }

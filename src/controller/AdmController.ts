@@ -183,4 +183,51 @@ export class AdmController{
 
         return response.status(200).send({})
     }
+
+
+    async getAllClient(request: Request, response: Response){
+        const freelancersId = await db.freelancer.findMany({
+            select: {
+                userId: true,
+            }
+        });
+
+        if(!freelancersId){ return response.status(200)}
+        console.log(freelancersId)
+
+        const getFreelancers = freelancersId.map(e => e.userId);
+
+        const getAllClient = await db.user.findMany({
+            where: {
+                id: {
+                    notIn: getFreelancers
+                }
+            }
+        });
+
+        return response.status(200).send(getAllClient)
+    }
+    
+    async getAllFreelancer(request: Request, response: Response){
+        const freelancersId = await db.freelancer.findMany({
+            select: {
+                userId: true,
+            }
+        });
+
+        if(!freelancersId){ return response.status(200)}
+        console.log(freelancersId)
+
+        const getFreelancers = freelancersId.map(e => e.userId);
+
+        const getAllClient = await db.user.findMany({
+            where: {
+                id: {
+                    in: getFreelancers
+                }
+            }
+        });
+
+        return response.status(200).send(getAllClient)
+    }
 }

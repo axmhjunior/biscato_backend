@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "../database";
 import { encryptPassword } from "../utils/Bcrypt";
 import { messageService } from "../utils/twilio";
-import { decodeToken } from "../utils/Jwt";
+import { decodeToken, generateToken } from "../utils/Jwt";
 
 export class FreelancerController {
   async create(request: Request, response: Response) {
@@ -65,14 +65,14 @@ export class FreelancerController {
         documentType,
         documentId,
         serviceCategory,
-        rating: 0,
         description,
       },
     });
 
     const otp = otpGenerator();
 
-    // messageService(`O seu codigo de confirmacão é \n${otp}`, phone)
+    messageService(`O seu codigo de confirmacão é \n${otp}`, phone)
+    const token = generateToken(saveUser.id)
     console.log(otp);
     return response.status(201).send(saveFreelancer);
   }
@@ -195,9 +195,9 @@ export class FreelancerController {
 
     const userId = decodeToken(token);
 
-    const user = await db.user.findUnique({
+    const user = await db.freelancer.findUnique({
       where: {
-        id: userId,
+        userId: userId
       },
     });
 
@@ -207,11 +207,11 @@ export class FreelancerController {
 
     const { longitude, latitude } = freelancerSchema.parse(request.body);
 
-    const getLocation = db.freelancerLocation.create({
+    const getLocation = await db.freelancerLocation.create({
         data: {
-            userId: userId,
-            latitude,
-            longitude
+            userId: "69e6428b-b5b7-4582-a615-66a54bd22940",
+            latitude: 40.7812,
+            longitude: 73.9665
             
         }
     });

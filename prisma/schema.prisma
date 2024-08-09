@@ -21,6 +21,8 @@ model User {
   verified Boolean @default(false)
   createAt DateTime @default(now()) @map("create_at")
   updateAt DateTime @updatedAt @map("update_at")
+
+  Historic      Historic[]
   Administratrator Administratrator[]
   Freelancer        Freelancer[]
   Service           Service[]
@@ -49,6 +51,8 @@ model Freelancer {
   serviceCategory String @map("service_category")
   description String
  role String @default("FREELANCER")
+
+ Historic   Historic[]
   Service          Service[]
   FreelancerLocation  FreelancerLocation[]
   ServiceNotification ServiceNotification[]
@@ -62,6 +66,9 @@ model FreelancerLocation {
   longitude Float 
   latitude Float
 
+createAt DateTime @default(now()) @map("create_at")
+  updateAt DateTime @updatedAt @map("update_at")
+
   
   freelancer Freelancer @relation(fields: [userId], references: [userId])
   
@@ -74,7 +81,8 @@ model UserLocation {
   longitude Float 
   latitude Float
 
-
+createAt DateTime @default(now()) @map("create_at")
+  updateAt DateTime @updatedAt @map("update_at")
   user User @relation(fields: [userId], references: [id])
 
   @@map("user_location")
@@ -85,7 +93,7 @@ model ServiceCategory {
   name String @unique
 
   Service      Service[]
-
+Historic    Historic[]
   @@map("service_category")
 }
 
@@ -96,7 +104,9 @@ model Service {
   categoryId String @map("category_id")
   description String
   status Boolean @default(true)
-
+createAt DateTime @default(now()) @map("create_at")
+  updateAt DateTime @updatedAt @map("update_at")
+  
   user User @relation(fields: [clientId], references: [id])
   freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
   category ServiceCategory @relation(fields: [categoryId], references: [id])
@@ -131,4 +141,21 @@ model Feedback {
 
   user User @relation(fields: [userId], references: [id])
   @@map("feedback")
+}
+
+model Historic {
+  id String @id @default(uuid())
+  freelancerId String
+  clientId String 
+category String 
+  description String
+createAt DateTime @default(now()) @map("create_at")
+  updateAt DateTime @updatedAt @map("update_at")
+
+
+  user User @relation(fields: [clientId], references: [id])
+  serviceCategory ServiceCategory @relation(fields: [category], references: [name])
+  freelancer Freelancer @relation(fields: [freelancerId], references: [userId])
+
+  @@map("historic")
 }

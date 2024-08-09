@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "../database";
 import { encryptPassword } from "../utils/Bcrypt";
 import { messageService } from "../utils/twilio";
-import { decodeToken } from "../utils/Jwt";
+import { decodeToken, generateToken } from "../utils/Jwt";
 
 
 
@@ -54,9 +54,10 @@ export class UserController{
 
         const otp = otpGenerator()
 
-        // messageService(`This your otp code: \n${otp}`, phone)
+        messageService(`This your otp code: \n${otp}`, phone)
         console.log(otp)
-        return response.status(201).send({...saveuser, password:undefined})
+        const token = generateToken(saveuser.id)
+        return response.status(201).send({...saveuser, password:undefined, token:token})
     }
 
 
