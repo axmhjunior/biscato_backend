@@ -18,7 +18,7 @@ model User {
   name String @unique
   phone String @unique
   password String
-  verified Boolean @default(false)
+  verified Boolean @default(true)
   role String @default("USER")
   createAt DateTime @default(now()) @map("create_at")
   updateAt DateTime @updatedAt @map("update_at")

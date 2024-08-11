@@ -2,85 +2,66 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { decodeToken } from "../utils/Jwt";
 import { db } from "../database";
+import { SendFeedbackInputDTO } from "../dtos/feedback.dto";
+import { FeedbackService } from "../service/feedback.service";
 
 export class FeedbackController {
-    async create(request: Request, response: Response){
-        const [, token] = z
-        .string()
-        .parse(request.headers.authorization)
-        .split(" ");
+  private feedbackService = new FeedbackService();
+  async create(request: Request, response: Response) {
+    const [, token] = z
+      .string()
+      .parse(request.headers.authorization)
+      .split(" ");
 
-
-      if (!token) {
-        return response
-          .status(401)
-          .send({ error: "Access denied. No token provided." });
-      }
-  
-      const feedbackSchema = z.object({
-        text: z.string(),
-      });
-  
-      const { text} =
-        feedbackSchema.parse(request.body);
-      const userId = decodeToken(token);
-  
-      const user = await db.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
-  
-      if (!user) {
-        return response.status(404).send({ error: "User not found" });
-      }
-
-      const save = await db.feedback.create({
-        data: {
-            userId,
-            text
-        }
-      });
-
-      response.status(201).send("Feedback sent")
+    if (!token) {
+      return response
+        .status(401)
+        .send({ error: "Access denied. No token provided." });
     }
 
-    async delete(request: Request, response: Response){
-        const [, token] = z
-        .string()
-        .parse(request.headers.authorization)
-        .split(" ");
+    const userId = decodeToken(token);
 
-
-      if (!token) {
-        return response
-          .status(401)
-          .send({ error: "Access denied. No token provided." });
-      }
-
-      const feedbackId = request.params.id
-
-      const userId = decodeToken(token);
-      const feedback = await db.feedback.findFirst({
-        where: {
-           userId,
-           id: feedbackId
-        }
-    });
-
-    if(!feedback){
-        return response.status(404).send('User not found');
+    try {
+      const input = SendFeedbackInputDTO.parse(request.body);
+      await this.feedbackService.send(userId, input);
+      response.status(201).send("Feedback sent");
+    } catch (error) {
+      response.json(error);
     }
-    
+  }
 
-    
-    await db.feedback.delete({
-        where:{
-          id: feedbackId
+  // async delete(request: Request, response: Response) {
+  //   const [, token] = z
+  //     .string()
+  //     .parse(request.headers.authorization)
+  //     .split(" ");
 
-        }
-    });
+  //   if (!token) {
+  //     return response
+  //       .status(401)
+  //       .send({ error: "Access denied. No token provided." });
+  //   }
 
-    return response.status(200).send({})
-    }
+  //   const feedbackId = request.params.id;
+
+  //   const userId = decodeToken(token);
+  //   const feedback = await db.feedback.findFirst({
+  //     where: {
+  //       userId,
+  //       id: feedbackId,
+  //     },
+  //   });
+
+  //   if (!feedback) {
+  //     return response.status(404).send("User not found");
+  //   }
+
+  //   await db.feedback.delete({
+  //     where: {
+  //       id: feedbackId,
+  //     },
+  //   });
+
+  //   return response.status(200).send({});
+  // }
 }

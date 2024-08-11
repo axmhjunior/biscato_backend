@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const FeedbackInputDTO = z.object({
+export const SendFeedbackInputDTO = z.object({
   text: z.string(),
 });
 
-export type FeedbackInputDTO = z.infer<typeof FeedbackInputDTO>;
+export type SendFeedbackInputDTO = z.infer<typeof SendFeedbackInputDTO>;

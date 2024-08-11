@@ -14,7 +14,6 @@ export class AdmService {
   private userRepository = new UserRepository();
 
   async create(data: CreateAdmInputDTO) {
-    console.log("first");
     const userName = await this.userRepository.findUserByName(data.name);
     console.log("second");
     if (userName) {
@@ -39,7 +38,7 @@ export class AdmService {
     console.log("data:", data);
     const saveUser = await this.userRepository.save(data);
 
-    const saveAsAdm = await this.admRepository.save(saveUser.id, data.email);
+    await this.admRepository.save(saveUser.id, data.email);
     const otp = otpGenerator();
 
     // messageService(`This your otp code: \n${otp}`, phone)

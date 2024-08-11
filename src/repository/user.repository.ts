@@ -26,6 +26,14 @@ export class UserRepository {
       },
     });
   }
+  async findUserByNameOrPhone(identifier: string) {
+    return await db.user.findFirst({
+      where: {
+        OR: [{ name: identifier }, { phone: identifier }],
+        verified: true,
+      },
+    });
+  }
   async findUserByPhone(phone: string) {
     return await db.user.findUnique({
       where: {
